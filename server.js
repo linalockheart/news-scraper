@@ -12,14 +12,11 @@ var port = process.env.PORT || 3000;
 var db = require("./models");
 
 var app = express();
-var router = express.Router(); //FTV
-// require("./config/routes")(router); //FTV
-// require("./config/routes"); 
 
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
-app.use(router); //FTV
+// app.use(router); //FTV
 
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
@@ -53,23 +50,23 @@ app.get("/", function(req, res) {
 })
 
 app.get("/scrape", function(req, res) {
-  // CHANGE WEBSITE
-  request("https://news.ycombinator.com/", function(error, response, html) {
+
+  request("https://www.nytimes.com/section/sports/football", function(error, response, html) {
     var $ = cheerio.load(html);
 
-    // Now, we grab every h2 within an article tag, and do the following:
-    $(".title").each(function(i, element) {
-      // Save an empty result object
+    $("div.stream").each(function(i, element) {
       var result = {};
-      console.log("result" + result);
+      console.log("result" + result[i]);
 
-      // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children("a")
+        .children("h2.headline")
         .text("");
       result.link = $(this)
-        .children("a")
+        .children("a.story-link")
         .attr("href");
+      result.summary = $(this)
+        .children("p.summary")
+        .text("");
 
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
@@ -85,11 +82,7 @@ app.get("/scrape", function(req, res) {
     res.send("Scrape Complete");
   });
 
-
-
-// Route for getting all Articles from the db
 app.get("/articles", function(req, res) {
-  // Grab every document in the Articles collection
   db.Article.find({})
     .then(function(dbArticle) {
       res.json(dbArticle);
