@@ -1,44 +1,44 @@
-// Require NPM packages
 var express = require("express");
+var exphbs = require('express-handlebars');
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 var request = require("request");
 var cheerio = require("cheerio");
 
-// Require all models
+var port = process.env.PORT || 3000;
+
 var db = require("./models");
-
-// IS THIS RIGHT??? DONT WE HAVE TO LET HEROKU PICK?
-var PORT = 3000;
-
-//Initialize Express
 var app = express();
 
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// NEED TO CHANGE THIS LINE WHEN DEPLOYING TO HEROKU
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
+// NEED TO CHANGE THIS PART WHEN DEPLOYING TO HEROKU
 mongoose.connect("mongodb://localhost/mongoHeadlines", { useNewUrlParser: true });
 
 // Routes
 
 app.get("/scrape", function(req, res) {
   // CHANGE WEBSITE
-  request("https://news.ycombinator.com/", function(error, response, html) {
+  request("https://www.cbssports.com/nfl/3/", function(error, response, html) {
     // Load the html body from request into cheerio
     var $ = cheerio.load(html);
+    console.log(html);
 
     // Now, we grab every h2 within an article tag, and do the following:
-    $("article h2").each(function(i, element) {
+    $("article-list-pack-item").each(function(i, element) {
       // Save an empty result object
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children("a")
-        .text();
+        .children("h5")
+        .text("article-list-pack-dek");
       result.link = $(this)
         .children("a")
         .attr("href");
@@ -53,12 +53,11 @@ app.get("/scrape", function(req, res) {
           // If an error occurred, send it to the client
           return res.json(err);
         });
-    });
-
+    })
+  })
     // If we were able to successfully scrape and save an Article, send a message to the client
     res.send("Scrape Complete");
   });
-});
 
 // Route for getting all Articles from the db
 app.get("/articles", function(req, res) {
@@ -85,7 +84,6 @@ app.get("/articles/:id", function(req, res) {
       res.json(dbArticle);
     })
     .catch(function(err) {
-      // If an error occurred, send it to the client
       res.json(err);
     });
 });
@@ -105,12 +103,10 @@ app.post("/articles/:id", function(req, res) {
       res.json(dbArticle);
     })
     .catch(function(err) {
-      // If an error occurred, send it to the client
       res.json(err);
     });
 });
 
-// Start the server
-app.listen(PORT, function() {
-  console.log("App running on port " + PORT + "!");
+app.listen(port, function(){
+  console.log('Listening on PORT ' + port);
 });
