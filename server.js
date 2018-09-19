@@ -16,7 +16,6 @@ var app = express();
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
-// app.use(router); //FTV
 
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
@@ -53,25 +52,24 @@ app.get("/scrape", function(req, res) {
 
   request("https://www.nytimes.com/section/sports/football", function(error, response, html) {
     var $ = cheerio.load(html);
+    console.log("html" + html);
 
-    $("div.stream").each(function(i, element) {
+    $("article.story").each(function(i, element) {
       var result = {};
-      console.log("result" + result[i]);
 
       result.title = $(this)
-        .children("h2.headline")
-        .text("");
-      result.link = $(this)
-        .children("a.story-link")
-        .attr("href");
-      result.summary = $(this)
-        .children("p.summary")
-        .text("");
+          .find("h2.headline").text().trim();
 
-      // Create a new Article using the `result` object built from scraping
+      result.link = $(this)
+          .find("a.story-link").attr("href");
+
+      result.summary = $(this)
+          .find("p.summary").text().trim();
+
+      console.log(result);
+
       db.Article.create(result)
         .then(function(dbArticle) {
-          // View the added result in the console
           console.log(dbArticle);
         })
         .catch(function(err) {
@@ -80,7 +78,7 @@ app.get("/scrape", function(req, res) {
     })
   })
     res.send("Scrape Complete");
-  });
+});
 
 app.get("/articles", function(req, res) {
   db.Article.find({})
@@ -109,7 +107,9 @@ app.get("/articles/:id", function(req, res) {
 app.post("/articles/:id", function(req, res) {
   db.Note.create(req.body)
     .then(function(dbNote) {
-      return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+      return db.Article.findOneAndUpdate({ _id: ObjectId(req.params.id) }, 
+                                        {$set: {note: dbNote._id }}, 
+                                        { new: true });
     })
     .then(function(dbArticle) {
       res.json(dbArticle);
