@@ -1,8 +1,24 @@
-$.getJSON("/articles", function(data) {
+// $.getJSON("/articles", function(data) {
+//     for (var i = 0; i < data.length; i++) {
+//       $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + "<a href='" + data[i].link + '>" + "<br />" + data[i].summary + "</p>");
+//     }
+//   });
+  
+  $.getJSON("/articles", function(data) {
     for (var i = 0; i < data.length; i++) {
-      $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "<br />" + data[i].summary + "</p>");
+        
+        var dataId="<p data-id='" + data[i]._id + "'>";
+        var articleTitle = "<h4>" + data[i].title + "</h4>";
+        var articleSummary = "<p>" + data[i].summary + "</p>";
+        var articleLink = "<a href='" + data[i].link + "'>" + "<p>" + data[i].link; + "</p></a>";
+        var commentBtn = "<button class='btn btn-outline-success addComment' type='submit'>Add Comment</button>";
+
+        var articleInfo = dataId + articleTitle + articleSummary + articleLink + commentBtn + "<hr>";
+        $("#articles").append(articleInfo);
     }
   });
+
+  // var articleLink = "<a href='" + data[i].link + "'>" + data[i].link; + "<br>";
   
   
   // Whenever someone clicks a p tag
