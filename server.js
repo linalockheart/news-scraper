@@ -23,12 +23,14 @@ mongoose.connect("mongodb://localhost/mongoHeadlines", { useNewUrlParser: true }
 
 // Routes
 
+app.get('/', function(req, res) {
+  res.redirect("/articles");
+});
+
 app.get("/scrape", function(req, res) {
   // CHANGE WEBSITE
   request("https://news.ycombinator.com/", function(error, response, html) {
-    console.log(html);
     var $ = cheerio.load(html);
-    console.log(html);
 
     // Now, we grab every h2 within an article tag, and do the following:
     $(".title").each(function(i, element) {
