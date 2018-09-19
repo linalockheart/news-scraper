@@ -25,20 +25,21 @@ mongoose.connect("mongodb://localhost/mongoHeadlines", { useNewUrlParser: true }
 
 app.get("/scrape", function(req, res) {
   // CHANGE WEBSITE
-  request("https://www.cbssports.com/nfl/3/", function(error, response, html) {
-    // Load the html body from request into cheerio
+  request("https://news.ycombinator.com/", function(error, response, html) {
+    console.log(html);
     var $ = cheerio.load(html);
     console.log(html);
 
     // Now, we grab every h2 within an article tag, and do the following:
-    $("article-list-pack-item").each(function(i, element) {
+    $(".title").each(function(i, element) {
       // Save an empty result object
       var result = {};
+      console.log(result);
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children("h5")
-        .text("article-list-pack-dek");
+        .children("a")
+        .text("");
       result.link = $(this)
         .children("a")
         .attr("href");
