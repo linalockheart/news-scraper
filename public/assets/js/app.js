@@ -1,30 +1,25 @@
-// $.getJSON("/articles", function(data) {
-//     for (var i = 0; i < data.length; i++) {
-//       $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + "<a href='" + data[i].link + '>" + "<br />" + data[i].summary + "</p>");
-//     }
-//   });
-  
-  $.getJSON("/articles", function(data) {
+    $.getJSON("/articles", function(data) {
     for (var i = 0; i < data.length; i++) {
         
         var dataId="<p data-id='" + data[i]._id + "'>";
         var articleTitle = "<h4>" + data[i].title + "</h4>";
         var articleSummary = "<p>" + data[i].summary + "</p>";
+        var commentBtn = "<button class='btn btn-outline-success' data-toggle='modal' data-target='#noteModal' id='addComment' type='submit'>Add Comment</button>";
         var articleLink = "<a href='" + data[i].link + "'>" + "<p>" + data[i].link; + "</p></a>";
-        var commentBtn = "<button class='btn btn-outline-success addComment' type='submit'>Add Comment</button>";
 
-        var articleInfo = dataId + articleTitle + articleSummary + articleLink + commentBtn + "<hr>";
+        var articleInfo = dataId + articleTitle + articleSummary + commentBtn + articleLink + "<hr>";
         $("#articles").append(articleInfo);
     }
   });
 
-  // var articleLink = "<a href='" + data[i].link + "'>" + data[i].link; + "<br>";
-  
-  
+  $('#noteModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+  })
+
   // Whenever someone clicks a p tag
-  $(document).on("click", "p", function() {
+  $(document).on("click", "#addComment", function() {
     // Empty the notes from the note section
-    $("#notes").empty();
+    // $("#notes").empty();
     // Save the id from the p tag
     var thisId = $(this).attr("data-id");
   
@@ -44,6 +39,7 @@
         $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
         // A button to submit a new note, with the id of the article saved to it
         $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
+        $("#articles").append("#notes");
   
         // If there's a note in the article
         if (data.note) {

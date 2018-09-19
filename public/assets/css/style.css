@@ -31,8 +31,12 @@ body {
     margin-bottom: 3%;
 }
 
-.addComment {
+#addComment {
     float: right;
+}
+
+.collapse {
+    visibility: collapse;
 }
 
 footer {
