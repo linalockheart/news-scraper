@@ -9,17 +9,36 @@ var cheerio = require("cheerio");
 var port = process.env.PORT || 3000;
 
 var db = require("./models");
+
 var app = express();
+var router = express.Router(); //FTV
 
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.static(__dirname + "/public"));
+app.use(router); //FTV
 
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
-// NEED TO CHANGE THIS PART WHEN DEPLOYING TO HEROKU
-mongoose.connect("mongodb://localhost/mongoHeadlines", { useNewUrlParser: true });
+// mongoose.connect("mongodb://localhost/mongoHeadlines", { useNewUrlParser: true });
+
+// If deployed, use the deployed database. Otherwise use the local mongoHeadlines database
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+
+// Set mongoose to leverage built in JavaScript ES6 Promises
+// Connect to the Mongo DB
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true }, function(err){
+  if (err) {
+    console.log(err);
+  }
+  else {
+    console.log("connected to mongoose");
+  }
+
+});
+
 
 // Routes
 
