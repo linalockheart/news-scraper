@@ -3,7 +3,7 @@ var exphbs = require('express-handlebars');
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-var ObjectId = require("mongoose").Types.ObjectId;  //Am I using this here? from Ed's video
+var ObjectId = require("mongoose").Types.ObjectId;
 var request = require("request");
 var cheerio = require("cheerio");
 
@@ -40,7 +40,8 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true }, function(err){
 /////////// Routes
 
 app.get("/", function(req, res) {
-  db.Article.find({}).then(function(dbArticles){
+  db.Article.find({})
+  .then(function(dbArticles){
     res.render("index", { dbArticles: dbArticles });
     console.log("dbArticles" + dbArticles);
   }).catch(function(err) {
@@ -84,6 +85,7 @@ app.get("/scrape", function(req, res) {
 
 app.get("/articles", function(req, res) {
   db.Article.find({})
+    .populate("note")
     .then(function(dbArticle) {
       res.json(dbArticle);
     })
@@ -92,9 +94,7 @@ app.get("/articles", function(req, res) {
     });
 });
 
-// Route for grabbing a specific Article by id, populate it with it's note
 app.get("/articles/:id", function(req, res) {
-  // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
   db.Article.findOne({ _id: req.params.id })
     .populate("note")
     .then(function(dbArticle) {
@@ -105,10 +105,11 @@ app.get("/articles/:id", function(req, res) {
     });
 });
 
-// Route for saving/updating an Article's associated Note
 app.post("/articles/:id", function(req, res) {
   db.Note.create(req.body)
     .then(function(dbNote) {
+      console.log(dbNote);
+      console.log(req.params.id)
       return db.Article.findOneAndUpdate({ _id: ObjectId(req.params.id) }, 
                                         {$set: {note: dbNote._id }}, 
                                         { new: true });
