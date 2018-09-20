@@ -48,6 +48,7 @@ app.get("/", function(req, res) {
   })
 })
 
+// $(document).on("click", "#scrape", function() {
 app.get("/scrape", function(req, res) {
 
   request("https://www.nytimes.com/section/sports/football", function(error, response, html) {
@@ -79,6 +80,7 @@ app.get("/scrape", function(req, res) {
   })
     res.send("Scrape Complete");
 });
+// });
 
 app.get("/articles", function(req, res) {
   db.Article.find({})
