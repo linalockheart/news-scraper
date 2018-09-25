@@ -1,3 +1,14 @@
+$(document).on("click", "#scrape", function() {
+
+  $.ajax({
+    method: "GET",
+    url: "/scrape"
+  })
+
+  res.redirect("/");
+
+});
+
     $.getJSON("/articles", function(data) {
 
     for (var i = 0; i < data.length; i++) {
@@ -15,6 +26,7 @@
 
         var articleInfo = dataId + articleTitle + articleSummary + commentBtn + noteDiv + articleLink + "<hr>";
         $("#articles").append(articleInfo);
+
     }
   });
 
